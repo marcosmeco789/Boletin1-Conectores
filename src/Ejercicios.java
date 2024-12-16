@@ -3,6 +3,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -88,21 +89,16 @@ public class Ejercicios {
         }
     }
 
-    public void borrarAlumnosAsignaturas(int codigo, int COD)
-            throws SQLException {
-        ps = null;
-        String query = "DELETE from alumnos where codigo=?";
-        if (this.ps == null)
-            this.ps = this.conexion.prepareStatement(query);
-        ps.setInt(1, codigo);
-        int resu = ps.executeUpdate();
+    public void ej3b(int codAlumno) throws SQLException {
+        String query = "DELETE FROM alumnos WHERE codigo = ?";
 
-        ps = null;
-        String query2 = "DELETE from asignaturas where COD=?";
-        if (this.ps == null)
-            this.ps = this.conexion.prepareStatement(query2);
-        ps.setInt(1, COD);
-        int resu2 = ps.executeUpdate();
+        try (PreparedStatement ps = this.conexion.prepareStatement(query)) {
+            ps.setInt(1, codAlumno);
+            int filasAfectadas = ps.executeUpdate();
+            System.out.println("Filas eliminadas en asignaturas: " + filasAfectadas);
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+        }
     }
 
     public void modificarAlumnos(String nombre, String apellidos, int altura, int aula, int codigo)
@@ -267,7 +263,92 @@ public class Ejercicios {
         System.out.println("Palabras reservadas: " + dbmt.getSQLKeywords() + "\n\n");
 
         System.out.println("Bases de dados del sgdb: " + dbmt.getCatalogs());
+
+        ResultSet rs = dbmt.getTables("add", null, null, null);
+        while (rs.next()) {
+            System.out.println("Nombre tabla: " + rs.getString("TABLE_NAME"));
+            System.out.println("Tipo tabla: " + rs.getString("TABLE_TYPE"));
+        }
+
+        ResultSet rs2 = dbmt.getTables("add", null, null, new String[] { "VIEW" });
+        while (rs2.next()) {
+            System.out.println("Nombre tabla: " + rs2.getString("TABLE_NAME"));
+            System.out.println("Tipo tabla: " + rs2.getString("TABLE_TYPE"));
+        }
+
+        System.out.println("Bases de datos del SGBD:");
+        ResultSet db = dbmt.getCatalogs();
+        while (db.next()) {
+            String nombredb = db.getString(1);
+            System.out.println("Nombre BD: " + nombredb);
+
+            ResultSet tablas = dbmt.getTables(nombredb, null, null, null);
+            while (tablas.next()) {
+                System.out.println("Nombre tabla: " + tablas.getString("TABLE_NAME"));
+                System.out.println("Tipo tabla: " + tablas.getString("TABLE_TYPE"));
+            }
+
+        }
+
+        System.out.println("Procedimientos almacenados:");
+        ResultSet procedimientos = dbmt.getProcedures("add", null, null);
+        while (procedimientos.next()) {
+            System.out.println("Nombre procedimento: " + procedimientos.getString("PROCEDURE_NAME"));
+            System.out.println("Tipo procedimiento: " + procedimientos.getString("PROCEDURE_TYPE"));
+        }
+
+        System.out.println("Columnas de las tablas que empiezan por a:");
+        ResultSet resu = dbmt.getColumns("add", null, "a%", null);
+        while (resu.next()) {
+            System.out.println("Posicion columna: " + resu.getString("ORDINAL_POSITION"));
+            System.out.println("Base de datos: " + resu.getString("TABLE_CAT"));
+            System.out.println("Tabla: " + resu.getString("TABLE_NAME"));
+            System.out.println("Nombre columna: " + resu.getString("COLUMN_NAME"));
+            System.out.println("Tipo de dato: " + resu.getString("TYPE_NAME"));
+            System.out.println("Tamaño: " + resu.getString("COLUMN_SIZE"));
+            System.out.println("Permite nulos: " + resu.getString("IS_NULLABLE"));
+            System.out.println("Autoincrementado: " + resu.getString("IS_AUTOINCREMENT"));
+        }
+
+        System.out.println("Claves primarias:");
+        ResultSet primarias = dbmt.getPrimaryKeys("add", null, "alumnos");
+        while (primarias.next()) {
+            System.out.println("Nombre clave primaria: " + primarias.getString("PK_NAME"));
+        }
+
+        System.out.println("Claves foraneas:");
+        ResultSet foraneas = dbmt.getExportedKeys("add", null, "alumnos");
+        while (foraneas.next()) {
+            System.out.println("Nombre clave foranea: " + foraneas.getString("FK_NAME"));
+        }
     }
+
+    public void ej10() throws SQLException {
+        String query = "select *, nombre as non from alumnos";
+        try (Statement ps = this.conexion.prepareStatement(query)) {
+            ResultSet resu = ps.executeQuery(query);
+            ResultSetMetaData rsmd = resu.getMetaData();
+
+            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                System.out.println("Nombre columna: " + rsmd.getColumnName(i));
+                System.out.println("Alias columna: " + rsmd.getColumnLabel(i));
+                System.out.println("Tipo de dato: " + rsmd.getColumnTypeName(i));
+                if (rsmd.isNullable(i) == 10) {
+                    System.out.println("Permite nulos: No");
+                } else {
+                    System.out.println("Permite nulos: Si");
+                }
+                System.out.println("Autoincrementado: " + rsmd.isAutoIncrement(i));
+                System.out.println("\n----------------\n");
+            }
+        } catch (SQLException e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+        }
+    }
+    
+        public void ej12() throws SQLException {
+            
+        }
 
     public static void main(String[] args) {
         Ejercicios ej = new Ejercicios();
@@ -276,8 +357,8 @@ public class Ejercicios {
         try {
             // ej.ej1("A%", 1);
             // ej.ej2("Marcos", "Ferreira", 162, 31, "Acceso a Datos");
-           // ej.ej3a(2);
-            //ej.borrarAlumnosAsignaturas(1,1);
+            // ej.ej3a(2);
+            // ej.ej3b(1);
 
             // ej.modificarAlumnos("Marcos", "MArcos", 163, 11, 16);
             // ej.modificarAsignaturas("ProgramaciooonM", 1);
@@ -289,6 +370,7 @@ public class Ejercicios {
             // ej.ej8("alumnos", "TEST2", "varchar(30)", null);
             // ej.ej8t();
             // ej.ej9();
+            // ej.ej10();
 
         } catch (SQLException e) {
 
