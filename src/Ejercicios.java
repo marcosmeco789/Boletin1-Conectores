@@ -1,3 +1,4 @@
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -263,7 +264,6 @@ public class Ejercicios {
         System.out.println("Palabras reservadas: " + dbmt.getSQLKeywords() + "\n\n");
         System.out.println("\n----------------\n");
 
-        
         ResultSet basesDatos = dbmt.getCatalogs();
         while (basesDatos.next()) {
             System.out.println("Nombre BD: " + basesDatos.getString(1));
@@ -323,20 +323,19 @@ public class Ejercicios {
         }
         System.out.println("\n----------------\n");
 
-    
-        ResultSet todasTablas = dbmt.getTables("add", null, null, new String[] { "TABLE" });
+        ResultSet todasTablas = dbmt.getTables("add", null, null, null);
         while (todasTablas.next()) {
             String nombreTabla = todasTablas.getString("TABLE_NAME");
             System.out.println("Tabla: " + nombreTabla);
 
             ResultSet clavesPrimarias = dbmt.getPrimaryKeys("add", null, nombreTabla);
             while (clavesPrimarias.next()) {
-            System.out.println("Clave primaria: " + clavesPrimarias.getString("COLUMN_NAME"));
+                System.out.println("Clave primaria: " + clavesPrimarias.getString("COLUMN_NAME"));
             }
 
             ResultSet clavesForaneas = dbmt.getExportedKeys("add", null, nombreTabla);
             while (clavesForaneas.next()) {
-            System.out.println("Clave foranea: " + clavesForaneas.getString("FKCOLUMN_NAME"));
+                System.out.println("Clave foranea: " + clavesForaneas.getString("FKCOLUMN_NAME"));
             }
             System.out.println("\n----------------\n");
         }
@@ -368,8 +367,35 @@ public class Ejercicios {
     }
 
     public void ej12() throws SQLException {
+        try {
+            this.conexion.setAutoCommit(false);
+            Statement st = this.conexion.createStatement();
+            st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST', 'TEST', 150, 20)");
+            st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST2', 'TEST2', 150, 20)");
+            st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST3', 'TEST3', 150, 20)");
 
+            this.conexion.commit();
+
+        } catch (SQLException e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+            try {
+                if (this.conexion!=null) {
+                    System.out.println("Se deshacen los cambios mediante un rollback");
+                   
+                   this.conexion.rollback();
+                }
+            } catch (SQLException e1) {
+                System.out.println("Error en el rollback: "+e1.getLocalizedMessage());
+            }
+        }
     }
+
+    public void ej13() throws SQLException{
+        String query = "SELECT archivo FROM documentos WHERE id = ?";
+
+           
+        }
+    
 
     public static void main(String[] args) {
         Ejercicios ej = new Ejercicios();
@@ -390,9 +416,10 @@ public class Ejercicios {
             // ej.ej7();
             // ej.ej8("alumnos", "TEST2", "varchar(30)", null);
             // ej.ej8t();
-             ej.ej9();
-             //ej.ej10();
-            //ej.ej12();
+            //ej.ej9();
+            // ej.ej10();
+             //ej.ej12();
+             ej.ej13();
 
         } catch (SQLException e) {
 
