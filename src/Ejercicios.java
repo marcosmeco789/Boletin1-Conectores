@@ -1,3 +1,5 @@
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -371,31 +373,74 @@ public class Ejercicios {
             this.conexion.setAutoCommit(false);
             Statement st = this.conexion.createStatement();
             st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST', 'TEST', 150, 20)");
-            st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST2', 'TEST2', 150, 20)");
-            st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST3', 'TEST3', 150, 20)");
+            st.executeUpdate(
+                    "INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST2', 'TEST2', 150, 20)");
+            st.executeUpdate(
+                    "INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST3', 'TEST3', 150, 20)");
 
             this.conexion.commit();
 
         } catch (SQLException e) {
             System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
             try {
-                if (this.conexion!=null) {
+                if (this.conexion != null) {
                     System.out.println("Se deshacen los cambios mediante un rollback");
-                   
-                   this.conexion.rollback();
+
+                    this.conexion.rollback();
                 }
             } catch (SQLException e1) {
-                System.out.println("Error en el rollback: "+e1.getLocalizedMessage());
+                System.out.println("Error en el rollback: " + e1.getLocalizedMessage());
             }
         }
     }
 
-    public void ej13() throws SQLException{
-        String query = "SELECT archivo FROM documentos WHERE id = ?";
+    public void ej13a(String nombre) throws SQLException {
+        String query = "SELECT imagen FROM imagenes WHERE nombre = ?";
 
-           
+        try (PreparedStatement ps = this.conexion.prepareStatement(query)) {
+            ps.setString(1, nombre);
+            ResultSet resu = ps.executeQuery();
+            if (resu.next()) {
+                InputStream is = resu.getBinaryStream("imagen");
+
+                java.io.FileOutputStream archivoSalida = new FileOutputStream("imagen.jpg");
+
+                int byteLeido = is.read();
+                while (byteLeido != -1) {
+                    archivoSalida.write(byteLeido);
+                    byteLeido = is.read();
+                }
+                archivoSalida.close();
+                is.close();
+            }
+
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
         }
-    
+
+    }
+
+
+    public void ej13b(String nombre, String imagen) throws SQLException {
+        String query = "INSERT INTO imagenes (nombre, imagen) VALUES (?, ?)";
+
+
+        try (PreparedStatement ps = this.conexion.prepareStatement(query)) {
+            ps.setString(1, nombre);
+            ps.setBinaryStream(2, new FileInputStream(imagen));
+
+            int result = ps.executeUpdate();
+            System.out.println("Filas afectadas: " + result);
+            
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+        }
+    }
+
+
+    public void ej15() throws SQLException {
+        String query = "CALL ";
+    }
 
     public static void main(String[] args) {
         Ejercicios ej = new Ejercicios();
@@ -416,10 +461,11 @@ public class Ejercicios {
             // ej.ej7();
             // ej.ej8("alumnos", "TEST2", "varchar(30)", null);
             // ej.ej8t();
-            //ej.ej9();
+            // ej.ej9();
             // ej.ej10();
-             //ej.ej12();
-             ej.ej13();
+            // ej.ej12();
+            ej.ej13a("mario");
+            //ej.ej13b("mario", "C:\\Users\\Marcos\\Documents\\subir.jpg");
 
         } catch (SQLException e) {
 
