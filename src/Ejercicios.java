@@ -438,9 +438,77 @@ public class Ejercicios {
     }
 
 
-    public void ej15() throws SQLException {
-        String query = "CALL ";
+    public void ej15a(int numero, String patron) throws SQLException {
+
+        String query = "CALL getAulas(?, ?)";
+
+        try (PreparedStatement ps = this.conexion.prepareStatement(query)) {
+            ps.setInt(1, numero);
+            ps.setString(2, patron);
+            ResultSet resu = ps.executeQuery();
+            while (resu.next()) {
+                System.out.printf("%-10s %-20s %-10s%n", resu.getString("numero"), resu.getString("nombreAula"), resu.getString("puestos"));
+            }
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+        }
+
     }
+
+    public void ej15b() throws SQLException {
+        String query = "SELECT SUM(puestos) as suma FROM aulas";
+
+        try (Statement ps = this.conexion.createStatement()) {
+            ResultSet resu = ps.executeQuery(query);
+            while (resu.next()) {
+                System.out.println(resu.getString("suma"));
+            }
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+        }
+    }
+
+    // Realiza un método que permita buscar una cadena de texto en cualquier columna de tipo char o varchar de cualquier tabla de una base datos dada. Debe indicar la base de datos, tabla y columna donde se encontró la coincidencia y el texto completo del campo
+    public void ej16(String bd, String texto) throws SQLException {
+
+        DatabaseMetaData dbmt = this.conexion.getMetaData();
+
+
+            ResultSet tablas = dbmt.getTables(bd, null, null, null);
+
+            while (tablas.next()) {
+                String nombreTabla = tablas.getString("TABLE_NAME");
+                ResultSet columnas = dbmt.getColumns(bd, null, nombreTabla, null);
+
+                while (columnas.next()) {
+                    String nombreColumna = columnas.getString("COLUMN_NAME");
+                    String tipoDato = columnas.getString("TYPE_NAME");
+
+                    if (tipoDato.equals("CHAR") || tipoDato.equals("VARCHAR")) {
+                        String query = "SELECT * FROM " + nombreTabla + " WHERE " + nombreColumna + " LIKE ?";
+                        try (PreparedStatement ps = this.conexion.prepareStatement(query)) {
+                            ps.setString(1, "%" + texto + "%");
+                            ResultSet resu = ps.executeQuery();
+                            while (resu.next()) {
+                                System.out.println("Base de datos: " + bd);
+                                System.out.println("Tabla: " + nombreTabla);
+                                System.out.println("Columna: " + nombreColumna);
+                                System.out.println("Texto completo: " + resu.getString(nombreColumna));
+                                System.out.println("\n----------------\n");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Se ha producido un error: " + e.getLocalizedMessage());
+                        }
+                    }
+                }
+            }
+        }
+    
+            
+        
+
+        
+    
 
     public static void main(String[] args) {
         Ejercicios ej = new Ejercicios();
@@ -464,8 +532,11 @@ public class Ejercicios {
             // ej.ej9();
             // ej.ej10();
             // ej.ej12();
-            ej.ej13a("mario");
+           // ej.ej13a("mario");
             //ej.ej13b("mario", "C:\\Users\\Marcos\\Documents\\subir.jpg");
+            //ej.ej15a(20, "a");
+            //ej.ej15b();
+            ej.ej16("add","%a%");
 
         } catch (SQLException e) {
 

@@ -11,6 +11,7 @@ import java.sql.ResultSetMetaData;
 
 public class JDBC {
     private Connection conexion;
+    private Connection conexion2;
 
     public void abrirConexion(String bd, String servidor, String usuario,
             String password) {
@@ -23,6 +24,24 @@ public class JDBC {
                 System.out.println("Conectado a " + bd + " en " + servidor);
             } else {
                 System.out.println("No conectado a " + bd + " en " + servidor);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQLException: " + e.getLocalizedMessage());
+            System.out.println("SQLState: " + e.getSQLState());
+            System.out.println("Código error: " + e.getErrorCode());
+        }
+    }
+
+
+    public void abrirConexion2(String bd2) {
+        try {
+            String url = "jdbc:sqlite:" + bd2;
+
+            this.conexion = DriverManager.getConnection(url);
+            if (this.conexion != null) {
+                System.out.println("Conectado a "+ bd2);
+            } else {
+                System.out.println("No conectado a " + bd2);
             }
         } catch (SQLException e) {
             System.out.println("SQLException: " + e.getLocalizedMessage());
@@ -156,16 +175,17 @@ public class JDBC {
 
     public static void main(String[] args) {
         JDBC jdbc = new JDBC();
-        jdbc.abrirConexion("add", "localhost", "root", "");
+        //jdbc.abrirConexion("add", "localhost", "root", "");
+        jdbc.abrirConexion2("hola2");
         // jdbc.consultaAlumnos("furbo");
         // jdbc.insertarColumna();
         // jdbc.ejemplo7();
         //jdbc.getInfo("add");
-        try {
-            jdbc.getInfoConsulta("SELECT * from alumnos");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     jdbc.getInfoConsulta("SELECT * from alumnos");
+        // } catch (SQLException e) {
+        //     e.printStackTrace();
+        // }
         jdbc.cerrarConexion();
 
     }
