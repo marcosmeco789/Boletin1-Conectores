@@ -16,7 +16,7 @@ public class Ejercicios {
 
     public void abrirConexion(String bd, String servidor, String usuario,
             String password) {
-        try {
+        try { 
             String url = String.format("jdbc:mysql://localhost:3306/add?useServerPrepStmts=true", "usuario",
                     "contraseña");
             // Establecemos la conexión con la BD
@@ -374,7 +374,7 @@ public class Ejercicios {
             Statement st = this.conexion.createStatement();
             st.executeUpdate("INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST', 'TEST', 150, 20)");
             st.executeUpdate(
-                    "INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST2', 'TEST2', 150, 20)");
+                    "INSERT INTO alumnos (nombrse, apellidos, altura, aula) VALUES ('TEST2', 'TEST2', 150, 20)");
             st.executeUpdate(
                     "INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES ('TEST3', 'TEST3', 150, 20)");
 
@@ -468,7 +468,7 @@ public class Ejercicios {
         }
     }
 
-    // Realiza un método que permita buscar una cadena de texto en cualquier columna de tipo char o varchar de cualquier tabla de una base datos dada. Debe indicar la base de datos, tabla y columna donde se encontró la coincidencia y el texto completo del campo
+    
     public void ej16(String bd, String texto) throws SQLException {
 
         DatabaseMetaData dbmt = this.conexion.getMetaData();
@@ -487,10 +487,9 @@ public class Ejercicios {
                     if (tipoDato.equals("CHAR") || tipoDato.equals("VARCHAR")) {
                         String query = "SELECT * FROM " + nombreTabla + " WHERE " + nombreColumna + " LIKE ?";
                         try (PreparedStatement ps = this.conexion.prepareStatement(query)) {
-                            ps.setString(1, "%" + texto + "%");
+                            ps.setString(1, texto);
                             ResultSet resu = ps.executeQuery();
                             while (resu.next()) {
-                                System.out.println("Base de datos: " + bd);
                                 System.out.println("Tabla: " + nombreTabla);
                                 System.out.println("Columna: " + nombreColumna);
                                 System.out.println("Texto completo: " + resu.getString(nombreColumna));
@@ -503,12 +502,7 @@ public class Ejercicios {
                 }
             }
         }
-    
-            
-        
 
-        
-    
 
     public static void main(String[] args) {
         Ejercicios ej = new Ejercicios();
@@ -531,12 +525,12 @@ public class Ejercicios {
             // ej.ej8t();
             // ej.ej9();
             // ej.ej10();
-            // ej.ej12();
-           // ej.ej13a("mario");
-            //ej.ej13b("mario", "C:\\Users\\Marcos\\Documents\\subir.jpg");
-            //ej.ej15a(20, "a");
+             //ej.ej12();
+            //ej.ej13a("mario2");
+            //ej.ej13b("mario2", "C:\\Users\\Marcos\\Documents\\subir.jpg");
+            //ej.ej15a(40, "a");
             //ej.ej15b();
-            ej.ej16("add","%a%");
+            ej.ej16("add","%ca%");
 
         } catch (SQLException e) {
 
