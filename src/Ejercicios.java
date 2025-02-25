@@ -504,6 +504,79 @@ public class Ejercicios {
         }
 
 
+
+
+
+
+
+
+        public void testj6() throws SQLException{
+            String query = "select nombre from alumnos where altura>=100 and nombre like '%a%'";
+            Statement s = this.conexion.createStatement();
+            ResultSet rs = s.executeQuery(query);
+
+            while (rs.next()) {
+                System.out.println(rs.getString(1)) ;
+            }
+        }
+
+
+        public void testej8() throws SQLException{
+            Statement s = this.conexion.createStatement();
+            int filas =  s.executeUpdate("alter table alumnos add column test varchar(30) null");
+            System.out.println(filas);
+        }
+
+
+        public void testej9() throws SQLException{
+            DatabaseMetaData dbmt = this.conexion.getMetaData();
+
+            System.out.println(dbmt.getDriverName());
+            System.out.println();
+            System.out.println(dbmt.getDriverVersion());
+            System.out.println();
+            System.out.println(dbmt.getURL());
+            System.out.println();
+            System.out.println(dbmt.getUserName());
+            System.out.println();
+            System.out.println(dbmt.getDatabaseProductName());
+            System.out.println();
+            System.out.println(dbmt.getDatabaseProductVersion());
+            System.out.println();
+            System.out.println(dbmt.getSQLKeywords());
+
+            System.out.println("\n----------------------");
+
+            ResultSet rs = dbmt.getCatalogs();
+            while (rs.next()) {
+                System.out.println(rs.getString(1));
+            }
+
+            System.out.println("\n----------------------");
+
+            ResultSet rs2 = dbmt.getTables("add", null, null, null);
+            while (rs2.next()) {
+                System.out.println(rs2.getString("TABLE_NAME"));
+                System.out.println(rs2.getString("TABLE_TYPE"));
+
+            }
+
+            System.out.println("\n----------------------");
+
+            ResultSet rs3 = dbmt.getProcedures("add", null, null);
+            while (rs3.next()) {
+                System.out.println(rs3.getString(3));
+                
+            }
+
+
+
+        }
+
+
+
+
+
     public static void main(String[] args) {
         Ejercicios ej = new Ejercicios();
 
@@ -530,7 +603,9 @@ public class Ejercicios {
             //ej.ej13b("mario2", "C:\\Users\\Marcos\\Documents\\subir.jpg");
             //ej.ej15a(40, "a");
             //ej.ej15b();
-            ej.ej16("add","%ca%");
+            //ej.ej16("add","%ca%");
+            //ej.testj6();
+            ej.testej9();
 
         } catch (SQLException e) {
 
